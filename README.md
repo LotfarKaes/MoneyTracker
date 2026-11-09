@@ -8,9 +8,9 @@ Individual console project for **Money Tracking**.
 | Language | C# |
 | Framework | .NET 10 |
 | Type | Console application |
-| Status | **Step by step — Project skeleton** |
+| Status | **Step 3 of 11 — Money Tracking** |
 
-The plan is in place, and the project files are created. The methods are outlines. The menu on screen will follow the mockup in *Money Tracking*. Properties, the list, and the real menu come in the next steps.
+`MoneyItem` now has its five fields. The program creates one sample item and prints it. The list, the menu, and saving come in the next steps. The menu on screen will follow the mockup in *Money Tracking*.
 
 ---
 
@@ -92,6 +92,8 @@ One row in the tracker.
 | `Amount` | `decimal` | How much money. Always greater than zero. |
 | `Month` | `int` | `1` for January through `12` for December. |
 | `Kind` | `MoneyKind` | `Income` or `Expense`. |
+
+The class has a constructor that sets all five fields. `Program.cs` creates one sample object: id 1, title Salary, amount 25000.00, month 1, kind Income. A list of many items comes in step 4.
 
 Why the amount stays positive: the mockup can show a negative **balance**, but one expense is not a negative title. Rent is `8000` and `Expense`. The balance math does the minus sign.
 
@@ -233,7 +235,7 @@ InPro1MoneyTracker/
 └── README.md
 ```
 
-These files are in the folder now. `ColoredText` can already write a colored line. The other methods are outlines. The next step adds the properties on `MoneyItem`.
+These files are in the folder now. `MoneyItem` has its properties, and `Program.cs` creates one object. `ColoredText` writes the colored lines. The other methods are still outlines. The next step stores many items in a list.
 
 ```mermaid
 classDiagram
@@ -277,9 +279,9 @@ From the course development guide. One step is pushed, then the next step starts
 | Step | Work | State |
 |---|---|---|
 | 1 | Plan features, classes, methods, menu, and files | Done |
-| 2 | Create the project and the empty class files | **This commit** |
-| 3 | Put real properties on `MoneyItem` and make one object | Next |
-| 4 | Store objects in `List<MoneyItem>` | Waiting |
+| 2 | Create the project and the empty class files | Done |
+| 3 | Put real properties on `MoneyItem` and make one object | **This commit** |
+| 4 | Store objects in `List<MoneyItem>` | Next |
 | 5 | Show the console menu in a loop | Waiting |
 | 6 | Add, show, update, and delete | Waiting |
 | 7 | Sort, filter income or expense, and check bad input | Waiting |
@@ -300,7 +302,16 @@ dotnet run
 
 You need the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0).
 
-Right now the program only prints three lines: a cyan welcome, a green notice that the files are ready, and a yellow notice that the menu comes later. No money is added or saved yet.
+Right now the program prints a welcome line and one sample item:
+
+```text
+>> Welcome to TrackMoney
+>> One sample item is ready:
+>> #1  Income  January  Salary  25000.00 kr
+>> The list and the menu come in the next steps.
+```
+
+Income is green. An expense would be red. Nothing is saved yet, and the menu is not on screen yet.
 
 ---
 
