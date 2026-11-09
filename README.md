@@ -8,9 +8,9 @@ Individual console project for **Money Tracking**.
 | Language | C# |
 | Framework | .NET 10 |
 | Type | Console application |
-| Status | **Step 1 of 11 — Planning** |
+| Status | **Step by step — Project skeleton** |
 
-This commit is the plan only. The program files come in the next steps. The menu on screen will follow the mockup in *Project-2-Money Tracking*.
+The plan is in place, and the project files are created. The methods are outlines. The menu on screen will follow the mockup in *Money Tracking*. Properties, the list, and the real menu come in the next steps.
 
 ---
 
@@ -209,7 +209,7 @@ InPro1MoneyTracker/
 
 `Backups` keeps the previous `money.json` before a new save replaces it. The name includes the date and time, so older copies stay.
 
-Personal data files stay out of git. A later step will add them to `.gitignore`.
+Personal data files stay out of git. They are listed in the root `.gitignore`.
 
 ---
 
@@ -233,7 +233,7 @@ InPro1MoneyTracker/
 └── README.md
 ```
 
-Step 2 creates these files. Step 2 does not fill in every method yet.
+These files are in the folder now. `ColoredText` can already write a colored line. The other methods are outlines. The next step adds the properties on `MoneyItem`.
 
 ```mermaid
 classDiagram
@@ -276,9 +276,9 @@ From the course development guide. One step is pushed, then the next step starts
 
 | Step | Work | State |
 |---|---|---|
-| 1 | Plan features, classes, methods, menu, and files | **This commit** |
-| 2 | Create the project and the empty class files | Next |
-| 3 | Put real properties on `MoneyItem` and make one object | Waiting |
+| 1 | Plan features, classes, methods, menu, and files | Done |
+| 2 | Create the project and the empty class files | **This commit** |
+| 3 | Put real properties on `MoneyItem` and make one object | Next |
 | 4 | Store objects in `List<MoneyItem>` | Waiting |
 | 5 | Show the console menu in a loop | Waiting |
 | 6 | Add, show, update, and delete | Waiting |
@@ -292,13 +292,15 @@ From the course development guide. One step is pushed, then the next step starts
 
 ## How to run
 
-Not yet. After step 2 the folder will contain a .NET 10 project. The command will be:
+Open a terminal in the `InPro1MoneyTracker` folder and run:
 
 ```bash
 dotnet run
 ```
 
-Run it from the `InPro1MoneyTracker` folder. You need the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0).
+You need the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0).
+
+Right now the program only prints three lines: a cyan welcome, a green notice that the files are ready, and a yellow notice that the menu comes later. No money is added or saved yet.
 
 ---
 
