@@ -8,9 +8,9 @@ Individual console project for **Money Tracking**.
 | Language | C# |
 | Framework | .NET 10 |
 | Type | Console application |
-| Status | **Step 3 of 11 — Money Tracking** |
+| Status | **Step 4 of 11 — The list** |
 
-`MoneyItem` now has its five fields. The program creates one sample item and prints it. The list, the menu, and saving come in the next steps. The menu on screen will follow the mockup in *Money Tracking*.
+`MoneyManager` keeps the items in a `List<MoneyItem>`. The program adds three sample rows and prints them. The menu and saving come in the next steps. The menu on screen will follow the mockup in *Project-2-Money Tracking*.
 
 ---
 
@@ -93,7 +93,7 @@ One row in the tracker.
 | `Month` | `int` | `1` for January through `12` for December. |
 | `Kind` | `MoneyKind` | `Income` or `Expense`. |
 
-The class has a constructor that sets all five fields. `Program.cs` creates one sample object: id 1, title Salary, amount 25000.00, month 1, kind Income. A list of many items comes in step 4.
+The class has a constructor that sets all five fields. `Program.cs` creates three sample objects and stores them in the list: Salary (income), Rent (expense), and Food (expense).
 
 Why the amount stays positive: the mockup can show a negative **balance**, but one expense is not a negative title. Rent is `8000` and `Expense`. The balance math does the minus sign.
 
@@ -235,7 +235,7 @@ InPro1MoneyTracker/
 └── README.md
 ```
 
-These files are in the folder now. `MoneyItem` has its properties, and `Program.cs` creates one object. `ColoredText` writes the colored lines. The other methods are still outlines. The next step stores many items in a list.
+These files are in the folder now. `MoneyManager` holds the list. `AddItem` stores one object, and `GetItems` hands the rows back for printing. Edit, remove, sort, and the balance are still outlines. The next step shows the menu.
 
 ```mermaid
 classDiagram
@@ -280,9 +280,9 @@ From the course development guide. One step is pushed, then the next step starts
 |---|---|---|
 | 1 | Plan features, classes, methods, menu, and files | Done |
 | 2 | Create the project and the empty class files | Done |
-| 3 | Put real properties on `MoneyItem` and make one object | **This commit** |
-| 4 | Store objects in `List<MoneyItem>` | Next |
-| 5 | Show the console menu in a loop | Waiting |
+| 3 | Put real properties on `MoneyItem` and make one object | Done |
+| 4 | Store objects in `List<MoneyItem>` | **This commit** |
+| 5 | Show the console menu in a loop | Next |
 | 6 | Add, show, update, and delete | Waiting |
 | 7 | Sort, filter income or expense, and check bad input | Waiting |
 | 8 | Save to a file, with a backup and a clean text report | Waiting |
@@ -302,16 +302,18 @@ dotnet run
 
 You need the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0).
 
-Right now the program prints a welcome line and one sample item:
+Right now the program prints the three sample rows that are stored in the list:
 
 ```text
 >> Welcome to TrackMoney
->> One sample item is ready:
+>> 3 items are in the list:
 >> #1  Income  January  Salary  25000.00 kr
->> The list and the menu come in the next steps.
+>> #2  Expense  January  Rent  8000.00 kr
+>> #3  Expense  March  Food  450.00 kr
+>> The menu comes in the next step.
 ```
 
-Income is green. An expense would be red. Nothing is saved yet, and the menu is not on screen yet.
+Income is green. Expenses are red. Nothing is saved yet, and the menu is not on screen yet.
 
 ---
 

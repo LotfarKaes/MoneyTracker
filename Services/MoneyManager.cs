@@ -2,19 +2,21 @@ using InPro1MoneyTracker.Models;
 
 namespace InPro1MoneyTracker.Services;
 
-// Keeps the money items while the program is running.
-// The list itself is added in step 4. The method bodies come in steps 6 and 7.
+// Keeps the money items in memory while the program is running.
+// Edit, remove, sort, and the balance are filled in later steps.
 public class MoneyManager
 {
+    private readonly List<MoneyItem> items = new List<MoneyItem>();
+
     public void AddItem(MoneyItem item)
     {
-        // Step 6: add one item to the list.
+        items.Add(item);
     }
 
     public List<MoneyItem> GetItems(MoneyKind? kindFilter)
     {
-        // Step 6 shows every row. Step 7 uses kindFilter for income or expense only.
-        return new List<MoneyItem>();
+        // Step 7 uses kindFilter to keep only incomes or only expenses.
+        return new List<MoneyItem>(items);
     }
 
     public void SortItems(string sortBy, bool ascending)
