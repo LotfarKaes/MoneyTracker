@@ -8,9 +8,9 @@ Individual console project for **Money Tracking**.
 | Language | C# |
 | Framework | .NET 10 |
 | Type | Console application |
-| Status | **Step 4 of 11 — The list** |
+| Status | **Step 5 of 11 — The menu** |
 
-`MoneyManager` keeps the items in a `List<MoneyItem>`. The program adds three sample rows and prints them. The menu and saving come in the next steps. The menu on screen will follow the mockup in *Project-2-Money Tracking*.
+The menu stays on screen until the user quits. Option 1 shows every item. Options 2 and 3 tell the user that add, edit, and remove come next. Option 4, and the words `exit`, `quit`, and `q`, leave the program. Saving to a file comes later. The menu text follows the mockup in *Project-2-Money Tracking*.
 
 ---
 
@@ -235,7 +235,7 @@ InPro1MoneyTracker/
 └── README.md
 ```
 
-These files are in the folder now. `MoneyManager` holds the list. `AddItem` stores one object, and `GetItems` hands the rows back for printing. Edit, remove, sort, and the balance are still outlines. The next step shows the menu.
+These files are in the folder now. The menu loop is in `Program.cs`. `MoneyManager` holds the list and can already work out the balance. Add, edit, remove, sort, and saving are still outlines. The next step fills in add, edit, and remove.
 
 ```mermaid
 classDiagram
@@ -281,9 +281,9 @@ From the course development guide. One step is pushed, then the next step starts
 | 1 | Plan features, classes, methods, menu, and files | Done |
 | 2 | Create the project and the empty class files | Done |
 | 3 | Put real properties on `MoneyItem` and make one object | Done |
-| 4 | Store objects in `List<MoneyItem>` | **This commit** |
-| 5 | Show the console menu in a loop | Next |
-| 6 | Add, show, update, and delete | Waiting |
+| 4 | Store objects in `List<MoneyItem>` | Done |
+| 5 | Show the console menu in a loop | **This commit** |
+| 6 | Add, show, update, and delete | Next |
 | 7 | Sort, filter income or expense, and check bad input | Waiting |
 | 8 | Save to a file, with a backup and a clean text report | Waiting |
 | 9 | Load the file when the program starts | Waiting |
@@ -302,18 +302,28 @@ dotnet run
 
 You need the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0).
 
-Right now the program prints the three sample rows that are stored in the list:
+Right now the program opens on the menu. The balance line is real: 25000 minus 8000 minus 450 is 16550.00 kr.
 
 ```text
 >> Welcome to TrackMoney
->> 3 items are in the list:
->> #1  Income  January  Salary  25000.00 kr
->> #2  Expense  January  Rent  8000.00 kr
->> #3  Expense  March  Food  450.00 kr
->> The menu comes in the next step.
+>> You have currently 16550.00 kr on your account.
+>> Pick an option:
+>> (1) Show items (All/Expense(s)/Income(s))
+>> (2) Add New Expense/Income
+>> (3) Edit Item (edit, remove)
+>> (4) Save and Quit
+>>
 ```
 
-Income is green. Expenses are red. Nothing is saved yet, and the menu is not on screen yet.
+| What you type | What happens |
+|---|---|
+| `1` | Shows all three sample items. Income is green. Expenses are red. |
+| `2` | A yellow notice: adding comes in the next step. The menu comes back. |
+| `3` | A yellow notice: edit and remove come in the next step. The menu comes back. |
+| `4`, `exit`, `EXIT`, `quit`, or `q` | A yellow notice that saving comes later, then `Goodbye.` |
+| Anything else | A red notice: type 1, 2, 3, 4, or exit. The menu comes back. |
+
+Choosing only expenses, only incomes, or a sort order comes in step 7. Nothing is written to a file yet.
 
 ---
 

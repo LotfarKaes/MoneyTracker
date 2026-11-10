@@ -3,7 +3,7 @@ using InPro1MoneyTracker.Models;
 namespace InPro1MoneyTracker.Services;
 
 // Keeps the money items in memory while the program is running.
-// Edit, remove, sort, and the balance are filled in later steps.
+// Edit, remove, and sort are filled in later steps.
 public class MoneyManager
 {
     private readonly List<MoneyItem> items = new List<MoneyItem>();
@@ -38,8 +38,17 @@ public class MoneyManager
 
     public decimal GetBalance()
     {
-        // Step 6: all income minus all expenses.
-        return 0m;
+        decimal balance = 0m;
+
+        foreach (MoneyItem item in items)
+        {
+            if (item.Kind == MoneyKind.Income)
+                balance += item.Amount;
+            else
+                balance -= item.Amount;
+        }
+
+        return balance;
     }
 
     public MoneyItem? FindById(int id)

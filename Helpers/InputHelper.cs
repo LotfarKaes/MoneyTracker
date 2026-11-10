@@ -1,18 +1,30 @@
 namespace InPro1MoneyTracker.Helpers;
 
-// Reads what the user types. The checks for bad input come in step 7.
+// Reads what the user types. Amounts, months, and yes/no answers come in later steps.
 public static class InputHelper
 {
     public static int ReadMenuChoice(string prompt, int min, int max)
     {
-        // Step 5 reads a menu number. Step 7 asks again when the number is outside the range.
+        ColoredText.Write(prompt, ConsoleColor.Cyan);
+        string text = Console.ReadLine()?.Trim() ?? string.Empty;
+
+        // exit, quit, and q do the same job as the last menu number (Save and Quit).
+        if (IsExitWord(text))
+            return max;
+
+        if (int.TryParse(text, out int choice) && choice >= min && choice <= max)
+            return choice;
+
         return 0;
     }
 
     public static bool IsExitWord(string text)
     {
-        // Step 5: exit, quit, and q count, in any mix of capital letters.
-        return false;
+        if (string.IsNullOrWhiteSpace(text))
+            return false;
+
+        string word = text.Trim().ToLower();
+        return word is "exit" or "quit" or "q";
     }
 
     public static decimal ReadAmount(string prompt)
