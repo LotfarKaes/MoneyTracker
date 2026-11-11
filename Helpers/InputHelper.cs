@@ -1,7 +1,7 @@
 using System.Globalization;
-using InPro1MoneyTracker.Models;
+using MoneyTracker.Models;
 
-namespace InPro1MoneyTracker.Helpers;
+namespace MoneyTracker.Helpers;
 
 // Reads what the user types. Asks again when the answer does not fit.
 public static class InputHelper
@@ -10,9 +10,18 @@ public static class InputHelper
 
     public static int ReadMenuChoice(string prompt, int min, int max)
     {
+        return ReadMenuChoice(prompt, min, max, false);
+    }
+
+    // Returns -1 when the user presses Enter and emptyIsDefault is true.
+    public static int ReadMenuChoice(string prompt, int min, int max, bool emptyIsDefault)
+    {
         string? text = ReadLine(prompt);
         if (text == null)
             return 0;
+
+        if (text.Length == 0 && emptyIsDefault)
+            return -1;
 
         if (int.TryParse(text, out int choice) && choice >= min && choice <= max)
             return choice;

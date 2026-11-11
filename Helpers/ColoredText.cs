@@ -1,4 +1,4 @@
-namespace InPro1MoneyTracker.Helpers;
+namespace MoneyTracker.Helpers;
 
 // Writes one message, then puts the console color back.
 public static class ColoredText

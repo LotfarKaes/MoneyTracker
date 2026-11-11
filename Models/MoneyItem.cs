@@ -1,4 +1,4 @@
-namespace InPro1MoneyTracker.Models;
+namespace MoneyTracker.Models;
 
 // One row in the tracker.
 // The amount is always stored as a positive number. Kind says if it is income or expense.

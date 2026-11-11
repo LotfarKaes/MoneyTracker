@@ -1,9 +1,8 @@
-using InPro1MoneyTracker.Models;
+using MoneyTracker.Models;
 
-namespace InPro1MoneyTracker.Services;
+namespace MoneyTracker.Services;
 
 // Keeps the money items in memory while the program is running.
-// Sort, and showing only one kind, come in the next step.
 public class MoneyManager
 {
     private readonly List<MoneyItem> items = new List<MoneyItem>();
@@ -21,13 +20,40 @@ public class MoneyManager
 
     public List<MoneyItem> GetItems(MoneyKind? kindFilter)
     {
-        // Step 7 uses kindFilter to keep only incomes or only expenses.
-        return new List<MoneyItem>(items);
+        List<MoneyItem> result = new List<MoneyItem>();
+
+        foreach (MoneyItem item in items)
+        {
+            if (kindFilter == null || item.Kind == kindFilter)
+                result.Add(item);
+        }
+
+        return result;
     }
 
     public void SortItems(string sortBy, bool ascending)
     {
-        // Step 7: sort by month, amount, or title.
+        items.Sort((first, second) =>
+        {
+            int compared = Compare(first, second, sortBy);
+            if (compared == 0)
+                return first.Id.CompareTo(second.Id);
+
+            return ascending ? compared : -compared;
+        });
+    }
+
+    private static int Compare(MoneyItem first, MoneyItem second, string sortBy)
+    {
+        string key = sortBy.Trim().ToLower();
+
+        if (key == "amount")
+            return first.Amount.CompareTo(second.Amount);
+
+        if (key == "title")
+            return string.Compare(first.Title, second.Title, StringComparison.OrdinalIgnoreCase);
+
+        return first.Month.CompareTo(second.Month);
     }
 
     public bool UpdateItem(int id, string title, decimal amount, int month, MoneyKind kind)

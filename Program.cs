@@ -1,6 +1,6 @@
-﻿using InPro1MoneyTracker.Helpers;
-using InPro1MoneyTracker.Models;
-using InPro1MoneyTracker.Services;
+﻿using MoneyTracker.Helpers;
+using MoneyTracker.Models;
+using MoneyTracker.Services;
 
 // The menu stays open until the user quits.
 // Option 1 shows the list. Options 2 and 3 add, edit, and remove.
@@ -26,7 +26,7 @@ while (running)
     switch (choice)
     {
         case 1:
-            ShowAllItems(manager);
+            ShowChosenItems(manager);
             break;
         case 2:
             AddNewItem(manager);
@@ -90,6 +90,125 @@ static void ShowAllItems(MoneyManager manager)
 
     foreach (MoneyItem item in items)
         ColoredText.WriteLine(">> " + item, KindColor(item.Kind));
+}
+
+static void ShowChosenItems(MoneyManager manager)
+{
+    if (manager.GetItems(null).Count == 0)
+    {
+        ColoredText.WriteLine(">> There are no items yet.", ConsoleColor.Yellow);
+        return;
+    }
+
+    int which = Ask(new string[]
+    {
+        ">> Show:",
+        ">> (1) All",
+        ">> (2) Expenses",
+        ">> (3) Incomes",
+        ">> Press Enter for all."
+    }, 3, 1);
+
+    if (InputHelper.ExitRequested)
+        return;
+
+    int sortChoice = Ask(new string[]
+    {
+        ">> Sort by:",
+        ">> (1) Month",
+        ">> (2) Amount",
+        ">> (3) Title",
+        ">> Press Enter for month."
+    }, 3, 1);
+
+    if (InputHelper.ExitRequested)
+        return;
+
+    int orderChoice = Ask(new string[]
+    {
+        ">> Order:",
+        ">> (1) Ascending",
+        ">> (2) Descending",
+        ">> Press Enter for ascending."
+    }, 2, 1);
+
+    if (InputHelper.ExitRequested)
+        return;
+
+    string sortBy = "month";
+    if (sortChoice == 2)
+        sortBy = "amount";
+    else if (sortChoice == 3)
+        sortBy = "title";
+
+    bool ascending = orderChoice == 1;
+    manager.SortItems(sortBy, ascending);
+
+    MoneyKind? filter = null;
+    if (which == 2)
+        filter = MoneyKind.Expense;
+    else if (which == 3)
+        filter = MoneyKind.Income;
+
+    List<MoneyItem> items = manager.GetItems(filter);
+    if (items.Count == 0)
+    {
+        string missing = filter == MoneyKind.Income ? "incomes" : "expenses";
+        ColoredText.WriteLine($">> There are no {missing} yet.", ConsoleColor.Yellow);
+        return;
+    }
+
+    ColoredText.WriteLine(
+        $">> Showing {items.Count} {WordForCount(items.Count, filter)}, sorted by {sortBy}, {OrderWords(sortBy, ascending)}:",
+        ConsoleColor.Green);
+
+    foreach (MoneyItem item in items)
+        ColoredText.WriteLine(">> " + item, KindColor(item.Kind));
+}
+
+static int Ask(string[] lines, int max, int defaultChoice)
+{
+    while (!InputHelper.ExitRequested)
+    {
+        foreach (string line in lines)
+            Console.WriteLine(line);
+
+        int choice = InputHelper.ReadMenuChoice(">> ", 1, max, true);
+        if (InputHelper.ExitRequested)
+            return 0;
+
+        if (choice == -1)
+            return defaultChoice;
+
+        if (choice != 0)
+            return choice;
+
+        ColoredText.WriteLine($">> Please type 1 to {max}, or press Enter.", ConsoleColor.Red);
+    }
+
+    return 0;
+}
+
+static string WordForCount(int count, MoneyKind? filter)
+{
+    if (filter == MoneyKind.Income)
+        return count == 1 ? "income" : "incomes";
+
+    if (filter == MoneyKind.Expense)
+        return count == 1 ? "expense" : "expenses";
+
+    return count == 1 ? "item" : "items";
+}
+
+static string OrderWords(string sortBy, bool ascending)
+{
+    if (sortBy == "amount")
+        return ascending ? "small to large" : "large to small";
+
+    if (sortBy == "title")
+        return ascending ? "A to Z" : "Z to A";
+
+    return ascending ? "January to December" : "December to January";
 }
 
 static void AddNewItem(MoneyManager manager)

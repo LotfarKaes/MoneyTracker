@@ -1,4 +1,4 @@
-# InPro1MoneyTracker
+# Money Tracker System
 
 Individual console project for **Money Tracking**.
 
@@ -8,9 +8,9 @@ Individual console project for **Money Tracking**.
 | Language | C# |
 | Framework | .NET 10 |
 | Type | Console application |
-| Status | **Step 6 of 11 — Add, edit, and remove** |
+| Status | **Step 7 of 11 — Sort and filter** |
 
-Option 1 shows every item. Option 2 adds an income or an expense. Option 3 edits or removes one item by its number. Empty titles, amounts that are not greater than 0, and unknown months are rejected. Sort, and showing only incomes or only expenses, come in the next step. Saving comes later. The menu text follows the mockup in *Project-2-Money Tracking*.
+Option 1 can show all items, only expenses, or only incomes. The rows can be sorted by month, amount, or title, in either direction. Add, edit, and remove still work. Saving comes in the next step. The menu text follows the mockup in *Project-2-Money Tracking*.
 
 ---
 
@@ -173,7 +173,7 @@ Income rows are green. Expense rows are red. The header is cyan.
 Files are created the first time the user quits with option 4. They are not part of the source code.
 
 ```text
-InPro1MoneyTracker/
+MoneyTracker/
 ├── Data/
 │   ├── money.json
 │   ├── money-report.txt
@@ -220,7 +220,7 @@ Personal data files stay out of git. They are listed in the root `.gitignore`.
 This matches a small individual console app: models, services, and the start file.
 
 ```text
-InPro1MoneyTracker/
+MoneyTracker/
 ├── Program.cs
 ├── Models/
 │   ├── MoneyKind.cs
@@ -231,11 +231,11 @@ InPro1MoneyTracker/
 ├── Helpers/
 │   ├── ColoredText.cs
 │   └── InputHelper.cs
-├── InPro1MoneyTracker.csproj
+├── MoneyTracker.csproj
 └── README.md
 ```
 
-These files are in the folder now. The menu can show, add, edit, and remove items. Sort, the income-only view, the expense-only view, and saving are still waiting. The next step adds sort and the two filtered views.
+These files are in the folder now. The menu can show, filter, sort, add, edit, and remove items. Saving and loading are still waiting. The next step writes the list to a file, keeps a backup, and writes a clean text report.
 
 ```mermaid
 classDiagram
@@ -283,9 +283,9 @@ From the course development guide. One step is pushed, then the next step starts
 | 3 | Put real properties on `MoneyItem` and make one object | Done |
 | 4 | Store objects in `List<MoneyItem>` | Done |
 | 5 | Show the console menu in a loop | Done |
-| 6 | Add, show, update, and delete | **This commit** |
-| 7 | Sort, and show only incomes or only expenses | Next |
-| 8 | Save to a file, with a backup and a clean text report | Waiting |
+| 6 | Add, show, update, and delete | Done |
+| 7 | Sort, and show only incomes or only expenses | **This commit** |
+| 8 | Save to a file, with a backup and a clean text report | Next |
 | 9 | Load the file when the program starts | Waiting |
 | 10 | Test add, edit, delete, sort, bad input, save, load, and exit | Waiting |
 | 11 | Finish this README (how to run, file explanation, screenshots) and publish | Waiting |
@@ -294,7 +294,7 @@ From the course development guide. One step is pushed, then the next step starts
 
 ## How to run
 
-Open a terminal in the `InPro1MoneyTracker` folder and run:
+Open a terminal in the `MoneyTracker` folder and run:
 
 ```bash
 dotnet run
@@ -317,7 +317,7 @@ Right now the program opens on the menu. The balance line is real: 25000 minus 8
 
 | What you type | What happens |
 |---|---|
-| `1` | Shows every item. Income is green. Expenses are red. |
+| `1` | Asks what to show (all, expenses, or incomes), what to sort by (month, amount, or title), and the order. Press Enter to keep all, month, and ascending. Income is green. Expenses are red. |
 | `2` | Asks income or expense, title, amount, and month, then adds the row. The new balance shows when the menu returns. |
 | `3` | Shows the rows, asks for the item number, then edit or remove. Remove asks `yes` or `no` first. |
 | `4`, `exit`, `EXIT`, `quit`, or `q` | Works at the menu and at the other questions. Saving comes later, then `Goodbye.` |
@@ -326,9 +326,9 @@ Right now the program opens on the menu. The balance line is real: 25000 minus 8
 
 On an edit screen, press Enter to keep the old value. A removed number is not used again. The next new item gets the next free number.
 
-Example: choose `2`, then `1`, title `Gift`, amount `100`, month `May`. The balance becomes 16650.00 kr.
+Example: choose `1`, then `2` for expenses, `2` for amount, and `2` for descending. Rent (8000.00 kr) is shown above Food (450.00 kr). Salary is left out.
 
-Choosing only expenses, only incomes, or a sort order comes in step 7. Nothing is written to a file yet.
+Nothing is written to a file yet.
 
 ---
 

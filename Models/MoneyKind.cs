@@ -1,4 +1,4 @@
-namespace InPro1MoneyTracker.Models;
+namespace MoneyTracker.Models;
 
 // Income adds money. Expense takes money away.
 public enum MoneyKind

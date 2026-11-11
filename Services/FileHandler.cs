@@ -1,6 +1,6 @@
-using InPro1MoneyTracker.Models;
+using MoneyTracker.Models;
 
-namespace InPro1MoneyTracker.Services;
+namespace MoneyTracker.Services;
 
 // Reads and writes the money files. Nothing is saved yet.
 public class FileHandler
