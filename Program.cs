@@ -8,11 +8,12 @@ using MoneyTracker.Services;
 Console.OutputEncoding = System.Text.Encoding.UTF8;
 
 MoneyManager manager = new MoneyManager();
-AddSampleItems(manager);
+FileHandler files = new FileHandler();
 
-FileHandler savedFiles = new FileHandler();
-if (savedFiles.SaveFileExists())
-    ColoredText.WriteLine(">> A saved file is here. Loading it comes in the next step.", ConsoleColor.Yellow);
+if (!files.SaveFileExists())
+    ColoredText.WriteLine(">> No saved file yet. Starting with an empty list.", ConsoleColor.Yellow);
+else
+    files.Load(manager);
 
 bool running = true;
 
@@ -48,13 +49,6 @@ while (running)
         SayGoodbye(manager);
         running = false;
     }
-}
-
-static void AddSampleItems(MoneyManager manager)
-{
-    manager.AddItem(new MoneyItem(1, "Salary", 25000m, 1, MoneyKind.Income));
-    manager.AddItem(new MoneyItem(2, "Rent", 8000m, 1, MoneyKind.Expense));
-    manager.AddItem(new MoneyItem(3, "Food", 450m, 3, MoneyKind.Expense));
 }
 
 static void PrintMenu(decimal balance)

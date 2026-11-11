@@ -18,6 +18,36 @@ public class MoneyManager
             nextId = item.Id + 1;
     }
 
+    public int LoadItems(IEnumerable<MoneyItem> loadedItems, int nextFreeId)
+    {
+        items.Clear();
+        int skipped = 0;
+
+        foreach (MoneyItem item in loadedItems)
+        {
+            if (item == null || item.Id <= 0 || FindById(item.Id) != null)
+            {
+                skipped++;
+                continue;
+            }
+
+            items.Add(item);
+        }
+
+        int highest = 0;
+        foreach (MoneyItem item in items)
+        {
+            if (item.Id > highest)
+                highest = item.Id;
+        }
+
+        nextId = nextFreeId > highest ? nextFreeId : highest + 1;
+        if (nextId < 1)
+            nextId = 1;
+
+        return skipped;
+    }
+
     public List<MoneyItem> GetItems(MoneyKind? kindFilter)
     {
         List<MoneyItem> result = new List<MoneyItem>();

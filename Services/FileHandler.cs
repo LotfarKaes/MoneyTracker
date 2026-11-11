@@ -6,7 +6,7 @@ using MoneyTracker.Models;
 
 namespace MoneyTracker.Services;
 
-// Writes the money list to disk. Reading it back comes in the next step.
+// Reads and writes the money list.
 public class FileHandler
 {
     public const string DataFolderName = "Data";
@@ -19,10 +19,38 @@ public class FileHandler
         return File.Exists(FilePath(SaveFileName, createFolder: false));
     }
 
-    public List<MoneyItem> Load()
+    public bool Load(MoneyManager manager)
     {
-        // Step 9: read Data/money.json when the program starts.
-        return new List<MoneyItem>();
+        try
+        {
+            string path = FilePath(SaveFileName, createFolder: false);
+            string json = File.ReadAllText(path);
+            MoneyFile? file = JsonSerializer.Deserialize<MoneyFile>(json, JsonOptions());
+
+            if (file == null)
+            {
+                ColoredText.WriteLine(">> Could not open the saved file. Starting with an empty list.", ConsoleColor.Red);
+                return false;
+            }
+
+            List<MoneyItem> loaded = file.Items ?? new List<MoneyItem>();
+            int skipped = manager.LoadItems(loaded, file.NextId);
+
+            if (skipped > 0)
+            {
+                string rowWord = skipped == 1 ? "row" : "rows";
+                ColoredText.WriteLine($">> Skipped {skipped} saved {rowWord} with a missing or repeated number.", ConsoleColor.Yellow);
+            }
+
+            int count = manager.GetItems(null).Count;
+            ColoredText.WriteLine($">> Opened your saved list. {count} items.", ConsoleColor.Green);
+            return true;
+        }
+        catch (Exception)
+        {
+            ColoredText.WriteLine(">> Could not open the saved file. Starting with an empty list.", ConsoleColor.Red);
+            return false;
+        }
     }
 
     public void Save(IReadOnlyList<MoneyItem> items, int nextId)
