@@ -39,12 +39,31 @@ public class FileHandler
             if (skipped > 0)
             {
                 string rowWord = skipped == 1 ? "row" : "rows";
-                ColoredText.WriteLine($">> Skipped {skipped} saved {rowWord} with a missing or repeated number.", ConsoleColor.Yellow);
+                string verb = skipped == 1 ? "was" : "were";
+                ColoredText.WriteLine(
+                    $">> Skipped {skipped} saved {rowWord} that {verb} incomplete or repeated.",
+                    ConsoleColor.Yellow);
             }
 
             int count = manager.GetItems(null).Count;
-            ColoredText.WriteLine($">> Opened your saved list. {count} items.", ConsoleColor.Green);
+            string itemWord = count == 1 ? "item" : "items";
+            ColoredText.WriteLine($">> Opened your saved list. {count} {itemWord}.", ConsoleColor.Green);
             return true;
+        }
+        catch (JsonException)
+        {
+            ColoredText.WriteLine(">> Could not open the saved file. It is not valid JSON. Starting with an empty list.", ConsoleColor.Red);
+            return false;
+        }
+        catch (IOException)
+        {
+            ColoredText.WriteLine(">> Could not open the saved file. Starting with an empty list.", ConsoleColor.Red);
+            return false;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            ColoredText.WriteLine(">> Could not open the saved file. The folder is not readable. Starting with an empty list.", ConsoleColor.Red);
+            return false;
         }
         catch (Exception)
         {
@@ -76,6 +95,14 @@ public class FileHandler
 
             if (hadOldFile)
                 ColoredText.WriteLine(">> Kept a backup of the previous file in Data/Backups.", ConsoleColor.Yellow);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            ColoredText.WriteLine(">> Could not save the money file. The Data folder is not writable.", ConsoleColor.Red);
+        }
+        catch (IOException)
+        {
+            ColoredText.WriteLine(">> Could not save the money file. Check the Data folder and try again.", ConsoleColor.Red);
         }
         catch (Exception)
         {
@@ -113,6 +140,14 @@ public class FileHandler
 
             File.WriteAllLines(reportPath, lines);
             ColoredText.WriteLine($">> Wrote a clean report to Data/{ReportFileName}.", ConsoleColor.Green);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            ColoredText.WriteLine(">> Could not write the clean report. The Data folder is not writable.", ConsoleColor.Red);
+        }
+        catch (IOException)
+        {
+            ColoredText.WriteLine(">> Could not write the clean report. Check the Data folder and try again.", ConsoleColor.Red);
         }
         catch (Exception)
         {

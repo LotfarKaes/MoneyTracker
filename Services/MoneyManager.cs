@@ -10,12 +10,18 @@ public class MoneyManager
 
     public int NextId => nextId;
 
-    public void AddItem(MoneyItem item)
+    public bool AddItem(MoneyItem item)
     {
+        if (!CanStore(item) || FindById(item.Id) != null)
+            return false;
+
+        item.Title = item.Title.Trim();
         items.Add(item);
 
         if (item.Id >= nextId)
             nextId = item.Id + 1;
+
+        return true;
     }
 
     public int LoadItems(IEnumerable<MoneyItem> loadedItems, int nextFreeId)
@@ -25,12 +31,13 @@ public class MoneyManager
 
         foreach (MoneyItem item in loadedItems)
         {
-            if (item == null || item.Id <= 0 || FindById(item.Id) != null)
+            if (!CanStore(item) || FindById(item.Id) != null)
             {
                 skipped++;
                 continue;
             }
 
+            item.Title = item.Title.Trim();
             items.Add(item);
         }
 
@@ -50,49 +57,48 @@ public class MoneyManager
 
     public List<MoneyItem> GetItems(MoneyKind? kindFilter)
     {
-        List<MoneyItem> result = new List<MoneyItem>();
+        if (kindFilter == null)
+            return items.ToList();
 
-        foreach (MoneyItem item in items)
-        {
-            if (kindFilter == null || item.Kind == kindFilter)
-                result.Add(item);
-        }
-
-        return result;
+        return items.Where(item => item.Kind == kindFilter).ToList();
     }
 
     public void SortItems(string sortBy, bool ascending)
     {
-        items.Sort((first, second) =>
-        {
-            int compared = Compare(first, second, sortBy);
-            if (compared == 0)
-                return first.Id.CompareTo(second.Id);
-
-            return ascending ? compared : -compared;
-        });
-    }
-
-    private static int Compare(MoneyItem first, MoneyItem second, string sortBy)
-    {
         string key = sortBy.Trim().ToLower();
+        IOrderedEnumerable<MoneyItem> sorted;
 
         if (key == "amount")
-            return first.Amount.CompareTo(second.Amount);
+        {
+            sorted = ascending
+                ? items.OrderBy(item => item.Amount)
+                : items.OrderByDescending(item => item.Amount);
+        }
+        else if (key == "title")
+        {
+            sorted = ascending
+                ? items.OrderBy(item => item.Title, StringComparer.OrdinalIgnoreCase)
+                : items.OrderByDescending(item => item.Title, StringComparer.OrdinalIgnoreCase);
+        }
+        else
+        {
+            sorted = ascending
+                ? items.OrderBy(item => item.Month)
+                : items.OrderByDescending(item => item.Month);
+        }
 
-        if (key == "title")
-            return string.Compare(first.Title, second.Title, StringComparison.OrdinalIgnoreCase);
-
-        return first.Month.CompareTo(second.Month);
+        List<MoneyItem> ordered = sorted.ThenBy(item => item.Id).ToList();
+        items.Clear();
+        items.AddRange(ordered);
     }
 
     public bool UpdateItem(int id, string title, decimal amount, int month, MoneyKind kind)
     {
         MoneyItem? item = FindById(id);
-        if (item == null)
+        if (item == null || !HasRequiredFields(title, amount, month))
             return false;
 
-        item.Title = title;
+        item.Title = title.Trim();
         item.Amount = amount;
         item.Month = month;
         item.Kind = kind;
@@ -111,27 +117,35 @@ public class MoneyManager
 
     public decimal GetBalance()
     {
-        decimal balance = 0m;
+        decimal income = items
+            .Where(item => item.Kind == MoneyKind.Income)
+            .Sum(item => item.Amount);
 
-        foreach (MoneyItem item in items)
-        {
-            if (item.Kind == MoneyKind.Income)
-                balance += item.Amount;
-            else
-                balance -= item.Amount;
-        }
+        decimal expenses = items
+            .Where(item => item.Kind == MoneyKind.Expense)
+            .Sum(item => item.Amount);
 
-        return balance;
+        return income - expenses;
     }
 
     public MoneyItem? FindById(int id)
     {
-        foreach (MoneyItem item in items)
-        {
-            if (item.Id == id)
-                return item;
-        }
+        return items.FirstOrDefault(item => item.Id == id);
+    }
 
-        return null;
+    private static bool CanStore(MoneyItem item)
+    {
+        return item != null
+            && item.Id > 0
+            && HasRequiredFields(item.Title, item.Amount, item.Month);
+    }
+
+    // Same rule as the questions on screen: a row needs a title, an amount above 0, and a month from 1 to 12.
+    private static bool HasRequiredFields(string title, decimal amount, int month)
+    {
+        return !string.IsNullOrWhiteSpace(title)
+            && amount > 0
+            && month >= 1
+            && month <= 12;
     }
 }

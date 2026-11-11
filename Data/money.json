@@ -1,13 +1,6 @@
 {
-  "nextId": 4,
+  "nextId": 5,
   "items": [
-    {
-      "id": 1,
-      "title": "Salary new",
-      "amount": 26000,
-      "month": 2,
-      "kind": "Expense"
-    },
     {
       "id": 2,
       "title": "Rent",
@@ -16,10 +9,24 @@
       "kind": "Expense"
     },
     {
+      "id": 1,
+      "title": "Salary new",
+      "amount": 26000,
+      "month": 2,
+      "kind": "Expense"
+    },
+    {
       "id": 3,
       "title": "Food",
       "amount": 450,
       "month": 3,
+      "kind": "Expense"
+    },
+    {
+      "id": 4,
+      "title": "2",
+      "amount": 2,
+      "month": 2,
       "kind": "Expense"
     }
   ]

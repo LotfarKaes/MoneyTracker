@@ -1,4 +1,5 @@
 Id    Kind        Month         Title             Amount
-1     Expense     February      Salary new        26000.00 kr
 2     Expense     January       Rent              8000.00 kr
+1     Expense     February      Salary new        26000.00 kr
 3     Expense     March         Food              450.00 kr
+4     Expense     February      2                 2.00 kr
