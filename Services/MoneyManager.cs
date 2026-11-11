@@ -3,14 +3,20 @@ using InPro1MoneyTracker.Models;
 namespace InPro1MoneyTracker.Services;
 
 // Keeps the money items in memory while the program is running.
-// Edit, remove, and sort are filled in later steps.
+// Sort, and showing only one kind, come in the next step.
 public class MoneyManager
 {
     private readonly List<MoneyItem> items = new List<MoneyItem>();
+    private int nextId = 1;
+
+    public int NextId => nextId;
 
     public void AddItem(MoneyItem item)
     {
         items.Add(item);
+
+        if (item.Id >= nextId)
+            nextId = item.Id + 1;
     }
 
     public List<MoneyItem> GetItems(MoneyKind? kindFilter)
@@ -24,16 +30,27 @@ public class MoneyManager
         // Step 7: sort by month, amount, or title.
     }
 
-    public bool UpdateItem(int id, MoneyItem updated)
+    public bool UpdateItem(int id, string title, decimal amount, int month, MoneyKind kind)
     {
-        // Step 6: change the item with this id.
-        return false;
+        MoneyItem? item = FindById(id);
+        if (item == null)
+            return false;
+
+        item.Title = title;
+        item.Amount = amount;
+        item.Month = month;
+        item.Kind = kind;
+        return true;
     }
 
     public bool RemoveItem(int id)
     {
-        // Step 6: remove the item with this id.
-        return false;
+        MoneyItem? item = FindById(id);
+        if (item == null)
+            return false;
+
+        items.Remove(item);
+        return true;
     }
 
     public decimal GetBalance()
@@ -53,7 +70,12 @@ public class MoneyManager
 
     public MoneyItem? FindById(int id)
     {
-        // Step 6: find one item, or return nothing when the id is missing.
+        foreach (MoneyItem item in items)
+        {
+            if (item.Id == id)
+                return item;
+        }
+
         return null;
     }
 }

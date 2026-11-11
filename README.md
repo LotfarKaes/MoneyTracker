@@ -8,9 +8,9 @@ Individual console project for **Money Tracking**.
 | Language | C# |
 | Framework | .NET 10 |
 | Type | Console application |
-| Status | **Step 5 of 11 — The menu** |
+| Status | **Step 6 of 11 — Add, edit, and remove** |
 
-The menu stays on screen until the user quits. Option 1 shows every item. Options 2 and 3 tell the user that add, edit, and remove come next. Option 4, and the words `exit`, `quit`, and `q`, leave the program. Saving to a file comes later. The menu text follows the mockup in *Project-2-Money Tracking*.
+Option 1 shows every item. Option 2 adds an income or an expense. Option 3 edits or removes one item by its number. Empty titles, amounts that are not greater than 0, and unknown months are rejected. Sort, and showing only incomes or only expenses, come in the next step. Saving comes later. The menu text follows the mockup in *Project-2-Money Tracking*.
 
 ---
 
@@ -235,7 +235,7 @@ InPro1MoneyTracker/
 └── README.md
 ```
 
-These files are in the folder now. The menu loop is in `Program.cs`. `MoneyManager` holds the list and can already work out the balance. Add, edit, remove, sort, and saving are still outlines. The next step fills in add, edit, and remove.
+These files are in the folder now. The menu can show, add, edit, and remove items. Sort, the income-only view, the expense-only view, and saving are still waiting. The next step adds sort and the two filtered views.
 
 ```mermaid
 classDiagram
@@ -282,9 +282,9 @@ From the course development guide. One step is pushed, then the next step starts
 | 2 | Create the project and the empty class files | Done |
 | 3 | Put real properties on `MoneyItem` and make one object | Done |
 | 4 | Store objects in `List<MoneyItem>` | Done |
-| 5 | Show the console menu in a loop | **This commit** |
-| 6 | Add, show, update, and delete | Next |
-| 7 | Sort, filter income or expense, and check bad input | Waiting |
+| 5 | Show the console menu in a loop | Done |
+| 6 | Add, show, update, and delete | **This commit** |
+| 7 | Sort, and show only incomes or only expenses | Next |
 | 8 | Save to a file, with a backup and a clean text report | Waiting |
 | 9 | Load the file when the program starts | Waiting |
 | 10 | Test add, edit, delete, sort, bad input, save, load, and exit | Waiting |
@@ -317,11 +317,16 @@ Right now the program opens on the menu. The balance line is real: 25000 minus 8
 
 | What you type | What happens |
 |---|---|
-| `1` | Shows all three sample items. Income is green. Expenses are red. |
-| `2` | A yellow notice: adding comes in the next step. The menu comes back. |
-| `3` | A yellow notice: edit and remove come in the next step. The menu comes back. |
-| `4`, `exit`, `EXIT`, `quit`, or `q` | A yellow notice that saving comes later, then `Goodbye.` |
-| Anything else | A red notice: type 1, 2, 3, 4, or exit. The menu comes back. |
+| `1` | Shows every item. Income is green. Expenses are red. |
+| `2` | Asks income or expense, title, amount, and month, then adds the row. The new balance shows when the menu returns. |
+| `3` | Shows the rows, asks for the item number, then edit or remove. Remove asks `yes` or `no` first. |
+| `4`, `exit`, `EXIT`, `quit`, or `q` | Works at the menu and at the other questions. Saving comes later, then `Goodbye.` |
+| A bad title, amount, or month | A red notice tells you what to type, and the question is asked again. |
+| Anything else on the menu | A red notice: type 1, 2, 3, 4, or exit. The menu comes back. |
+
+On an edit screen, press Enter to keep the old value. A removed number is not used again. The next new item gets the next free number.
+
+Example: choose `2`, then `1`, title `Gift`, amount `100`, month `May`. The balance becomes 16650.00 kr.
 
 Choosing only expenses, only incomes, or a sort order comes in step 7. Nothing is written to a file yet.
 

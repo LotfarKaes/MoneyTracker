@@ -1,16 +1,18 @@
+using System.Globalization;
+using InPro1MoneyTracker.Models;
+
 namespace InPro1MoneyTracker.Helpers;
 
-// Reads what the user types. Amounts, months, and yes/no answers come in later steps.
+// Reads what the user types. Asks again when the answer does not fit.
 public static class InputHelper
 {
+    public static bool ExitRequested { get; private set; }
+
     public static int ReadMenuChoice(string prompt, int min, int max)
     {
-        ColoredText.Write(prompt, ConsoleColor.Cyan);
-        string text = Console.ReadLine()?.Trim() ?? string.Empty;
-
-        // exit, quit, and q do the same job as the last menu number (Save and Quit).
-        if (IsExitWord(text))
-            return max;
+        string? text = ReadLine(prompt);
+        if (text == null)
+            return 0;
 
         if (int.TryParse(text, out int choice) && choice >= min && choice <= max)
             return choice;
@@ -27,21 +29,145 @@ public static class InputHelper
         return word is "exit" or "quit" or "q";
     }
 
-    public static decimal ReadAmount(string prompt)
+    public static string? ReadText(string prompt, string? keepValue = null)
     {
-        // Step 7: accept 12.50 and 12,50. Reject zero and empty text.
-        return 0m;
+        while (!ExitRequested)
+        {
+            string? text = ReadLine(prompt);
+            if (text == null)
+                return null;
+
+            if (text.Length == 0 && keepValue != null)
+                return keepValue;
+
+            if (text.Length > 0)
+                return text;
+
+            ColoredText.WriteLine(">> Please type a title.", ConsoleColor.Red);
+        }
+
+        return null;
     }
 
-    public static int ReadMonth(string prompt)
+    public static decimal? ReadAmount(string prompt, decimal? keepValue = null)
     {
-        // Step 7: accept 3 or March, and keep the month as a number from 1 to 12.
+        while (!ExitRequested)
+        {
+            string? text = ReadLine(prompt);
+            if (text == null)
+                return null;
+
+            if (text.Length == 0 && keepValue != null)
+                return keepValue;
+
+            string normalized = text.Replace(" ", string.Empty).Replace(',', '.');
+            if (decimal.TryParse(normalized, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal amount)
+                && amount > 0)
+                return amount;
+
+            ColoredText.WriteLine(">> Please type an amount greater than 0. Example: 150.50", ConsoleColor.Red);
+        }
+
+        return null;
+    }
+
+    public static int? ReadMonth(string prompt, int? keepValue = null)
+    {
+        while (!ExitRequested)
+        {
+            string? text = ReadLine(prompt);
+            if (text == null)
+                return null;
+
+            if (text.Length == 0 && keepValue != null)
+                return keepValue;
+
+            if (int.TryParse(text, out int month) && month >= 1 && month <= 12)
+                return month;
+
+            for (int index = 1; index < MoneyItem.MonthNames.Length; index++)
+            {
+                if (text.Equals(MoneyItem.MonthNames[index], StringComparison.OrdinalIgnoreCase))
+                    return index;
+            }
+
+            ColoredText.WriteLine(">> Please type a month from 1 to 12, or a name like March.", ConsoleColor.Red);
+        }
+
+        return null;
+    }
+
+    public static MoneyKind? ReadKind(string prompt, MoneyKind? keepValue = null)
+    {
+        while (!ExitRequested)
+        {
+            string? text = ReadLine(prompt);
+            if (text == null)
+                return null;
+
+            if (text.Length == 0 && keepValue != null)
+                return keepValue;
+
+            string word = text.ToLower();
+            if (word is "1" or "income")
+                return MoneyKind.Income;
+            if (word is "2" or "expense")
+                return MoneyKind.Expense;
+
+            ColoredText.WriteLine(">> Type 1 for income or 2 for expense.", ConsoleColor.Red);
+        }
+
+        return null;
+    }
+
+    public static int ReadItemNumber(string prompt)
+    {
+        while (!ExitRequested)
+        {
+            string? text = ReadLine(prompt);
+            if (text == null)
+                return 0;
+
+            if (int.TryParse(text, out int id) && id > 0)
+                return id;
+
+            ColoredText.WriteLine(">> Please type the item number. Example: 2", ConsoleColor.Red);
+        }
+
         return 0;
     }
 
-    public static bool ReadYesNo(string prompt)
+    public static bool? ReadYesNo(string prompt)
     {
-        // Step 6: ask before a row is removed.
-        return false;
+        while (!ExitRequested)
+        {
+            string? text = ReadLine(prompt);
+            if (text == null)
+                return null;
+
+            string word = text.ToLower();
+            if (word is "y" or "yes")
+                return true;
+            if (word is "n" or "no")
+                return false;
+
+            ColoredText.WriteLine(">> Please type yes or no.", ConsoleColor.Red);
+        }
+
+        return null;
+    }
+
+    private static string? ReadLine(string prompt)
+    {
+        ColoredText.Write(prompt, ConsoleColor.Cyan);
+        string text = Console.ReadLine()?.Trim() ?? string.Empty;
+
+        if (IsExitWord(text))
+        {
+            ExitRequested = true;
+            return null;
+        }
+
+        return text;
     }
 }
