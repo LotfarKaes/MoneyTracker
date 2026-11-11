@@ -10,6 +10,10 @@ Console.OutputEncoding = System.Text.Encoding.UTF8;
 MoneyManager manager = new MoneyManager();
 AddSampleItems(manager);
 
+FileHandler savedFiles = new FileHandler();
+if (savedFiles.SaveFileExists())
+    ColoredText.WriteLine(">> A saved file is here. Loading it comes in the next step.", ConsoleColor.Yellow);
+
 bool running = true;
 
 while (running)
@@ -19,7 +23,7 @@ while (running)
 
     if (InputHelper.ExitRequested || choice == 4)
     {
-        SayGoodbye();
+        SayGoodbye(manager);
         break;
     }
 
@@ -41,7 +45,7 @@ while (running)
 
     if (InputHelper.ExitRequested)
     {
-        SayGoodbye();
+        SayGoodbye(manager);
         running = false;
     }
 }
@@ -314,9 +318,12 @@ static void ConfirmRemove(MoneyManager manager, MoneyItem item)
         ColoredText.WriteLine(">> Could not remove that item.", ConsoleColor.Red);
 }
 
-static void SayGoodbye()
+static void SayGoodbye(MoneyManager manager)
 {
-    ColoredText.WriteLine(">> Saving to a file comes in a later step.", ConsoleColor.Yellow);
+    FileHandler files = new FileHandler();
+    List<MoneyItem> items = manager.GetItems(null);
+    files.Save(items, manager.NextId);
+    files.WriteCleanReport(items);
     ColoredText.WriteLine(">> Goodbye.", ConsoleColor.Cyan);
 }
 

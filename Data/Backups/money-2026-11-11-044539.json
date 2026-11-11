@@ -1,0 +1,33 @@
+{
+  "nextId": 5,
+  "items": [
+    {
+      "id": 1,
+      "title": "Salary",
+      "amount": 25000,
+      "month": 1,
+      "kind": "Income"
+    },
+    {
+      "id": 2,
+      "title": "Rent",
+      "amount": 8000,
+      "month": 1,
+      "kind": "Expense"
+    },
+    {
+      "id": 3,
+      "title": "Food",
+      "amount": 450,
+      "month": 3,
+      "kind": "Expense"
+    },
+    {
+      "id": 4,
+      "title": "Kayes new income",
+      "amount": 1200,
+      "month": 2,
+      "kind": "Income"
+    }
+  ]
+}

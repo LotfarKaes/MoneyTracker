@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace MoneyTracker.Models;
 
 // One row in the tracker.
@@ -28,6 +30,7 @@ public class MoneyItem
         Kind = kind;
     }
 
+    [JsonIgnore]
     public string MonthName =>
         Month >= 1 && Month <= 12 ? MonthNames[Month] : Month.ToString();
 

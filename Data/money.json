@@ -1,0 +1,26 @@
+{
+  "nextId": 4,
+  "items": [
+    {
+      "id": 1,
+      "title": "Salary new",
+      "amount": 26000,
+      "month": 2,
+      "kind": "Expense"
+    },
+    {
+      "id": 2,
+      "title": "Rent",
+      "amount": 8000,
+      "month": 1,
+      "kind": "Expense"
+    },
+    {
+      "id": 3,
+      "title": "Food",
+      "amount": 450,
+      "month": 3,
+      "kind": "Expense"
+    }
+  ]
+}
