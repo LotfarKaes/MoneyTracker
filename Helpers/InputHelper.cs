@@ -8,6 +8,19 @@ public static class InputHelper
 {
     public static bool ExitRequested { get; private set; }
 
+    // Keeps the last screen visible until the user is ready for the dashboard again.
+    public static void WaitReturnToMainMenu()
+    {
+        if (ExitRequested)
+            return;
+
+        Console.WriteLine();
+        ColoredText.WriteLine("  Press Enter to return to the main menu…", ConsoleColor.DarkGray);
+        string? line = Console.ReadLine();
+        if (line != null && IsExitWord(line.Trim()))
+            ExitRequested = true;
+    }
+
     public static int ReadMenuChoice(string prompt, int min, int max)
     {
         return ReadMenuChoice(prompt, min, max, false);

@@ -1,4 +1,4 @@
-# Money Tracker System
+# InPro1MoneyTracker
 
 Console application for the individual project **Money Tracking**.
 
@@ -33,24 +33,28 @@ Example: save Salary `25000` in January, Rent `8000` in January, and Food `450` 
 
 ## The screen
 
-```text
->> Welcome to TrackMoney
->> You have currently 16550.00 kr on your account.
->> Pick an option:
->> (1) Show items (All/Expense(s)/Income(s))
->> (2) Add New Expense/Income
->> (3) Edit Item (edit, remove)
->> (4) Save and Quit
->>
-```
-
-When the balance is below zero, the second line matches the mockup:
+The main screen is a small dashboard in the console. It still has the same four choices as the course mockup. The title bar says **TRACK MONEY** and **PERSONAL ACCOUNTS**. The **account** box shows the balance (`16550.00 kr` when things look normal, or `(-)350.00 kr` when you owe more than you earned). **Quick operations** are the four numbered actions. **Latest activity** shows your newest rows. **Monthly spending** draws simple bars from your expenses.
 
 ```text
->> You have currently (-)350.00 kr on your account.
+  ╔══════════════════════════════════════════════════════════════════════════╗
+  ║  TRACK MONEY │ PERSONAL ACCOUNTS                                        ║
+  ╚══════════════════════════════════════════════════════════════════════════╝
+
+  ┌─ ACCOUNT ──────────────────────────────────────────────────────────────┐
+  │  AVAILABLE BALANCE
+  │  16550.00 kr                                    ● In balance
+  └─────────────────────────────────────────────────────────────────────────┘
+
+  QUICK OPERATIONS
+   1  View history      All items, expenses only, or incomes only
+   2  Add transaction   New income or new expense
+   3  Edit or remove     Change one row or delete it
+   4  Save and quit      Save JSON, report, backup, then exit
+
+  > Select operation (1–4, or type exit / quit / q)
 ```
 
-A positive balance is green. A negative balance is red. The welcome line is cyan. Income rows are green. Expense rows are red. A problem is red. A warning is yellow.
+A positive balance is green. A negative balance is red with **Overdrawn**. Income rows are green. Expense rows are red. A problem is red. A warning is yellow.
 
 One printed row looks like this:
 
@@ -158,6 +162,8 @@ The backup line appears only when an older save was already there.
 
 ## Project structure
 
+The program is small on purpose. `Program.cs` starts it. The menu talks to the user. `MoneyManager` keeps the list. `FileHandler` writes and reads the files.
+
 ```text
 InPro1MoneyTracker/
 ├── Program.cs                 Starts the app and loads the saved file
@@ -169,44 +175,175 @@ InPro1MoneyTracker/
 │   └── FileHandler.cs         Save, backup, clean report, and load
 ├── Helpers/
 │   ├── Menu.cs                The menu, show, add, edit, and remove screens
+│   ├── ConsoleUi.cs           Dashboard layout on the main screen
 │   ├── ColoredText.cs         One colored line, then the old color comes back
 │   └── InputHelper.cs         Reads answers and rejects bad input
 ├── InPro1MoneyTracker.csproj
 └── README.md
 ```
 
+### Simple class diagram
+
+This is a simple picture of the design, the kind the course guide asks for in step 2.4. It shows the main classes, their properties, and their important methods. It is not a map of every helper.
+
+Read the first picture from left to right. The menu is the screen. The manager keeps the rows. Each row is one `MoneyItem`, and `MoneyKind` says if that row is income or expense. `FileHandler` saves and loads the list.
+
 ```mermaid
 classDiagram
-    class MoneyKind {
-        <<enum>>
-        Income
-        Expense
+    direction LR
+
+    class Menu {
+        +Run(manager)
     }
+
+    class MoneyManager {
+        -List~MoneyItem~ items
+        -int nextId
+        +AddItem(item) bool
+        +GetItems(kindFilter) List
+        +SortItems(sortBy, ascending)
+        +UpdateItem(...) bool
+        +RemoveItem(id) bool
+        +GetBalance() decimal
+        +FindById(id) MoneyItem
+    }
+
     class MoneyItem {
         +int Id
         +string Title
         +decimal Amount
         +int Month
         +MoneyKind Kind
+        +string MonthName
     }
+
+    class MoneyKind {
+        <<enumeration>>
+        Income
+        Expense
+    }
+
+    class FileHandler {
+        +Load(manager) bool
+        +Save(items, nextId)
+        +WriteCleanReport(items)
+    }
+
+    Menu --> MoneyManager : show, add, edit, remove
+    FileHandler --> MoneyManager : save and load
+    MoneyManager o--> "0..*" MoneyItem : holds
+    MoneyItem --> MoneyKind : Income or Expense
+```
+
+The same five classes, drawn from top to bottom, with the fields written in full:
+
+```mermaid
+classDiagram
+    direction TB
+
+    class MoneyKind {
+        <<enumeration>>
+        Income
+        Expense
+    }
+
+    class MoneyItem {
+        +int Id
+        +string Title
+        +decimal Amount
+        +int Month
+        +MoneyKind Kind
+        +string MonthName
+        +MoneyItem(id, title, amount, month, kind)
+        +ToString() string
+    }
+
     class MoneyManager {
         -List~MoneyItem~ items
-        +AddItem()
-        +GetItems()
-        +SortItems()
-        +UpdateItem()
-        +RemoveItem()
-        +GetBalance()
+        -int nextId
+        +int NextId
+        +AddItem(item) bool
+        +LoadItems(loadedItems, nextFreeId) int
+        +GetItems(kindFilter) List
+        +SortItems(sortBy, ascending)
+        +UpdateItem(id, title, amount, month, kind) bool
+        +RemoveItem(id) bool
+        +GetBalance() decimal
+        +FindById(id) MoneyItem
     }
+
     class FileHandler {
-        +Load()
-        +Save()
-        +WriteCleanReport()
+        +SaveFileExists() bool
+        +Load(manager) bool
+        +Save(items, nextId)
+        +WriteCleanReport(items)
     }
-    MoneyItem --> MoneyKind
-    MoneyManager o--> MoneyItem
-    FileHandler ..> MoneyManager : save and load
+
+    class Menu {
+        +Run(manager)
+    }
+
+    MoneyItem --> MoneyKind : kind
+    MoneyManager o--> "0..*" MoneyItem : items
+    Menu --> MoneyManager : uses the list
+    FileHandler --> MoneyManager : save and load
 ```
+
+`MoneyItem` is one row. The amount stays a positive number, and `Kind` says which way the money moves. `MoneyManager` owns those rows while the program is running. `Menu` is what you see on screen. `FileHandler` writes `money.json` and reads it back. `InputHelper` and `ColoredText` help the menu, so they stay out of this picture.
+
+### How the picture works
+
+Each box is one class. The name sits on top. Under the name are the facts the class remembers, then the jobs it can do. The left-to-right picture is the short tour. The top-to-bottom picture writes the same five classes out in full. This is that full picture, in plain words.
+
+A `+` means the rest of the program may use that fact or that job. A `-` means it stays inside the box. An arrow means “this box uses that box.” The words on the arrow say how.
+
+**MoneyKind** is a list of two choices.
+
+- `Income` is money that comes in, like salary.
+- `Expense` is money that goes out, like rent.
+
+**MoneyItem** is one row on the list. Think of one line in a notebook.
+
+- `Id` is the row’s own number. The program uses it when you edit or remove that row.
+- `Title` is the short name, such as Salary or Food.
+- `Amount` is how many kronor. It is always a number above zero. The minus sign shows up only on the balance line.
+- `Month` is a number from 1 to 12. 1 means January. 12 means December.
+- `Kind` is `Income` or `Expense`.
+- `MonthName` turns the month number into a word, such as March. The saved file keeps the number. The word is made when the row is shown.
+- `MoneyItem(...)` is how a new row is made. You give it the number, the name, the amount, the month, and the kind, and it fills those in.
+- `ToString()` turns the row into one line you can read, such as `#1  Income  January  Salary  25000.00 kr`.
+
+**MoneyManager** is the notebook while the program is open. It holds every row.
+
+- `items` is the private list of rows. Other boxes ask the manager when they need a change.
+- `nextId` is the next free number. After row 3, the next new row gets 4. Old numbers are never used again.
+- `NextId` lets other boxes read that next number.
+- `AddItem` puts one good row on the list. It answers yes when the row is stored. It answers no when the name is empty, the amount is 0 or less, the month is outside 1 to 12, or that number is already on the list.
+- `LoadItems` clears the list and fills it from the saved file. A bad row or a repeated number is left out. The method tells how many rows were left out.
+- `GetItems` hands back the rows. You can ask for every row, only incomes, or only expenses.
+- `SortItems` lines the rows up by month, by amount, or by title. One way is small to large. The other way is large to small. When two rows match, the smaller id comes first.
+- `UpdateItem` finds one number and changes its name, amount, month, or kind. It answers no when that number is missing, or when the new facts are too weak to store.
+- `RemoveItem` takes one row off the list. It answers no when that number is missing.
+- `GetBalance` adds every income, adds every expense, then subtracts. That number is the money you have now.
+- `FindById` looks for one number and gives that row back.
+
+**FileHandler** reads and writes the files on the computer.
+
+- `SaveFileExists` looks for `money.json`. It answers yes when the file is there, and no on a first start.
+- `Load` reads `money.json` and gives the rows to the manager. When the file is broken, the program says so and starts with an empty list.
+- `Save` copies the old file into `Data/Backups`, then writes a new `money.json`.
+- `WriteCleanReport` writes `money-report.txt` in straight columns, so the list is easy to read later.
+
+**Menu** is the screen you talk to.
+
+- `Run` shows the welcome line, the balance, and the four choices. It keeps asking until you pick 4 or type exit. Choice 1 shows the rows. Choice 2 adds a row. Choice 3 edits or removes a row. Choice 4 saves the list and says goodbye.
+
+The arrows, in the same plain words:
+
+- The menu points at the manager, because the screen asks the list to show, add, edit, and remove.
+- The file helper points at the manager, because it loads rows into the list and saves what the list holds.
+- The manager holds zero rows, or many rows. The little diamond means those rows belong to the manager. `0..*` means “none, or as many as you add.”
+- Each `MoneyItem` points at `MoneyKind`, because every row is income or expense.
 
 ### `MoneyItem`
 

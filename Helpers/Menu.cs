@@ -12,8 +12,8 @@ public class Menu
 
         while (running)
         {
-            PrintMenu(manager.GetBalance());
-            int choice = InputHelper.ReadMenuChoice(">> ", 1, 4);
+            ConsoleUi.DrawMainScreen(manager);
+            int choice = InputHelper.ReadMenuChoice("  > ", 1, 4);
 
             if (InputHelper.ExitRequested || choice == 4)
             {
@@ -33,7 +33,8 @@ public class Menu
                     EditOrRemove(manager);
                     break;
                 default:
-                    ColoredText.WriteLine(">> Please type 1, 2, 3, 4, or exit.", ConsoleColor.Red);
+                    ColoredText.WriteLine("  Please type 1, 2, 3, 4, or exit.", ConsoleColor.Red);
+                    InputHelper.WaitReturnToMainMenu();
                     break;
             }
 
@@ -45,84 +46,72 @@ public class Menu
         }
     }
 
-    private static void PrintMenu(decimal balance)
-    {
-        Console.WriteLine();
-        ColoredText.WriteLine(">> Welcome to TrackMoney", ConsoleColor.Cyan);
-
-        ConsoleColor balanceColor = balance < 0 ? ConsoleColor.Red : ConsoleColor.Green;
-        ColoredText.WriteLine($">> You have currently {FormatBalance(balance)} on your account.", balanceColor);
-
-        ColoredText.WriteLine(">> Pick an option:", ConsoleColor.Cyan);
-        ColoredText.WriteLine(">> (1) Show items (All/Expense(s)/Income(s))", ConsoleColor.Cyan);
-        ColoredText.WriteLine(">> (2) Add New Expense/Income", ConsoleColor.Cyan);
-        ColoredText.WriteLine(">> (3) Edit Item (edit, remove)", ConsoleColor.Cyan);
-        ColoredText.WriteLine(">> (4) Save and Quit", ConsoleColor.Cyan);
-    }
-
-    private static string FormatBalance(decimal balance)
-    {
-        if (balance < 0)
-            return $"(-){Math.Abs(balance):0.00} kr";
-
-        return $"{balance:0.00} kr";
-    }
-
     private static void ShowAllItems(MoneyManager manager)
     {
         List<MoneyItem> items = manager.GetItems(null);
 
         if (items.Count == 0)
         {
-            ColoredText.WriteLine(">> There are no items yet.", ConsoleColor.Yellow);
+            ConsoleUi.WriteNotice("There are no items yet.", ConsoleColor.Yellow);
             return;
         }
 
-        ColoredText.WriteLine($">> Showing all {items.Count} items:", ConsoleColor.Green);
-
-        foreach (MoneyItem item in items)
-            ColoredText.WriteLine(">> " + item, KindColor(item.Kind));
+        string word = items.Count == 1 ? "item" : "items";
+        ConsoleUi.WriteHistoryResults($"All {items.Count} {word}", items);
     }
 
     private static void ShowChosenItems(MoneyManager manager)
     {
+        Console.WriteLine();
+        ConsoleUi.WriteSubheader("View history");
+
         if (manager.GetItems(null).Count == 0)
         {
-            ColoredText.WriteLine(">> There are no items yet.", ConsoleColor.Yellow);
+            ConsoleUi.WriteNotice("There are no items yet.", ConsoleColor.Yellow);
+            InputHelper.WaitReturnToMainMenu();
             return;
         }
 
-        int which = Ask(new string[]
-        {
-            ">> Show:",
-            ">> (1) All",
-            ">> (2) Expenses",
-            ">> (3) Incomes",
-            ">> Press Enter for all."
-        }, 3, 1);
+        int which = AskChoice(
+            "Show",
+            new (int, string, string, ConsoleColor)[]
+            {
+                (1, "All items", "everything on the list", ConsoleColor.DarkGray),
+                (2, "Expenses only", "money going out", ConsoleColor.DarkRed),
+                (3, "Incomes only", "money coming in", ConsoleColor.DarkGreen),
+            },
+            "Press Enter for all, or type 1–3.",
+            3,
+            1);
 
         if (InputHelper.ExitRequested)
             return;
 
-        int sortChoice = Ask(new string[]
-        {
-            ">> Sort by:",
-            ">> (1) Month",
-            ">> (2) Amount",
-            ">> (3) Title",
-            ">> Press Enter for month."
-        }, 3, 1);
+        int sortChoice = AskChoice(
+            "Sort by",
+            new (int, string, string, ConsoleColor)[]
+            {
+                (1, "Month", "January through December", ConsoleColor.DarkCyan),
+                (2, "Amount", "how much money", ConsoleColor.DarkYellow),
+                (3, "Title", "name A to Z", ConsoleColor.DarkMagenta),
+            },
+            "Press Enter for month, or type 1–3.",
+            3,
+            1);
 
         if (InputHelper.ExitRequested)
             return;
 
-        int orderChoice = Ask(new string[]
-        {
-            ">> Order:",
-            ">> (1) Ascending",
-            ">> (2) Descending",
-            ">> Press Enter for ascending."
-        }, 2, 1);
+        int orderChoice = AskChoice(
+            "Order",
+            new (int, string, string, ConsoleColor)[]
+            {
+                (1, "Ascending", "small to large / A to Z", ConsoleColor.DarkGreen),
+                (2, "Descending", "large to small / Z to A", ConsoleColor.DarkRed),
+            },
+            "Press Enter for ascending, or type 1–2.",
+            2,
+            1);
 
         if (InputHelper.ExitRequested)
             return;
@@ -146,26 +135,31 @@ public class Menu
         if (items.Count == 0)
         {
             string missing = filter == MoneyKind.Income ? "incomes" : "expenses";
-            ColoredText.WriteLine($">> There are no {missing} yet.", ConsoleColor.Yellow);
+            ConsoleUi.WriteNotice($"There are no {missing} yet.", ConsoleColor.Yellow);
+            InputHelper.WaitReturnToMainMenu();
             return;
         }
 
-        ColoredText.WriteLine(
-            $">> Showing {items.Count} {WordForCount(items.Count, filter)}, sorted by {sortBy}, {OrderWords(sortBy, ascending)}:",
-            ConsoleColor.Green);
+        string summary =
+            $"{items.Count} {WordForCount(items.Count, filter)} · {sortBy} · {OrderWords(sortBy, ascending)}";
+        ConsoleUi.WriteHistoryResults(summary, items);
 
-        foreach (MoneyItem item in items)
-            ColoredText.WriteLine(">> " + item, KindColor(item.Kind));
+        InputHelper.WaitReturnToMainMenu();
     }
 
-    private static int Ask(string[] lines, int max, int defaultChoice)
+    private static int AskChoice(
+        string stepTitle,
+        IReadOnlyList<(int number, string label, string hint, ConsoleColor accent)> options,
+        string enterHint,
+        int max,
+        int defaultChoice)
     {
         while (!InputHelper.ExitRequested)
         {
-            foreach (string line in lines)
-                ColoredText.WriteLine(line, ConsoleColor.Cyan);
+            Console.WriteLine();
+            ConsoleUi.WriteChoicePanel(stepTitle, options, enterHint);
 
-            int choice = InputHelper.ReadMenuChoice(">> ", 1, max, true);
+            int choice = InputHelper.ReadMenuChoice("  > ", 1, max, true);
             if (InputHelper.ExitRequested)
                 return 0;
 
@@ -175,7 +169,7 @@ public class Menu
             if (choice != 0)
                 return choice;
 
-            ColoredText.WriteLine($">> Please type 1 to {max}, or press Enter.", ConsoleColor.Red);
+            ConsoleUi.WriteInlineError($"Please type 1 to {max}, or press Enter for the default.");
         }
 
         return 0;
@@ -205,6 +199,7 @@ public class Menu
 
     private static void AddNewItem(MoneyManager manager)
     {
+        ConsoleUi.WriteSubheader("Add transaction");
         ColoredText.WriteLine(">> (1) Income", ConsoleColor.Green);
         ColoredText.WriteLine(">> (2) Expense", ConsoleColor.Red);
 
@@ -214,23 +209,32 @@ public class Menu
         int? month = amount == null ? null : InputHelper.ReadMonth(">> Month (1-12 or name): ");
 
         if (kind == null || title == null || amount == null || month == null)
+        {
+            if (!InputHelper.ExitRequested)
+                InputHelper.WaitReturnToMainMenu();
             return;
+        }
 
         MoneyItem item = new MoneyItem(manager.NextId, title, amount.Value, month.Value, kind.Value);
         if (!manager.AddItem(item))
         {
             ColoredText.WriteLine(">> That item was not added. It needs a title, an amount above 0, and a month from 1 to 12.", ConsoleColor.Red);
+            InputHelper.WaitReturnToMainMenu();
             return;
         }
 
         ColoredText.WriteLine(">> Added " + item, ConsoleColor.Green);
+        InputHelper.WaitReturnToMainMenu();
     }
 
     private static void EditOrRemove(MoneyManager manager)
     {
+        ConsoleUi.WriteSubheader("Edit or remove");
+
         if (manager.GetItems(null).Count == 0)
         {
             ColoredText.WriteLine(">> There are no items yet.", ConsoleColor.Yellow);
+            InputHelper.WaitReturnToMainMenu();
             return;
         }
 
@@ -263,7 +267,10 @@ public class Menu
         else if (action == 2)
             ConfirmRemove(manager, item);
         else
+        {
             ColoredText.WriteLine(">> Please type 1 to edit or 2 to remove.", ConsoleColor.Red);
+            InputHelper.WaitReturnToMainMenu();
+        }
     }
 
     private static void EditItem(MoneyManager manager, MoneyItem item)
@@ -283,16 +290,22 @@ public class Menu
             : InputHelper.ReadKind($">> Kind [{item.Kind}] (1 income, 2 expense): ", item.Kind);
 
         if (title == null || amount == null || month == null || kind == null)
+        {
+            if (!InputHelper.ExitRequested)
+                InputHelper.WaitReturnToMainMenu();
             return;
+        }
 
         bool updated = manager.UpdateItem(item.Id, title, amount.Value, month.Value, kind.Value);
         if (!updated)
         {
             ColoredText.WriteLine(">> Could not update that item. It needs a title, an amount above 0, and a month from 1 to 12.", ConsoleColor.Red);
+            InputHelper.WaitReturnToMainMenu();
             return;
         }
 
         ColoredText.WriteLine(">> Updated " + item, ConsoleColor.Green);
+        InputHelper.WaitReturnToMainMenu();
     }
 
     private static void ConfirmRemove(MoneyManager manager, MoneyItem item)
@@ -302,6 +315,8 @@ public class Menu
         {
             if (!InputHelper.ExitRequested)
                 ColoredText.WriteLine(">> Kept the item.", ConsoleColor.Yellow);
+            if (!InputHelper.ExitRequested)
+                InputHelper.WaitReturnToMainMenu();
             return;
         }
 
@@ -309,6 +324,8 @@ public class Menu
             ColoredText.WriteLine($">> Removed {item.Title}.", ConsoleColor.Green);
         else
             ColoredText.WriteLine(">> Could not remove that item.", ConsoleColor.Red);
+
+        InputHelper.WaitReturnToMainMenu();
     }
 
     private static void SayGoodbye(MoneyManager manager)
@@ -317,7 +334,12 @@ public class Menu
         List<MoneyItem> items = manager.GetItems(null);
         files.Save(items, manager.NextId);
         files.WriteCleanReport(items);
-        ColoredText.WriteLine(">> Goodbye.", ConsoleColor.Cyan);
+
+        Console.WriteLine();
+        ColoredText.WriteLine("  ╔════════════════════════════════════════╗", ConsoleColor.Magenta);
+        ColoredText.WriteLine("  ║  Saved. Thanks for using TrackMoney.   ║", ConsoleColor.Magenta);
+        ColoredText.WriteLine("  ╚════════════════════════════════════════╝", ConsoleColor.Magenta);
+        ColoredText.WriteLine("  Goodbye.", ConsoleColor.Cyan);
     }
 
     private static ConsoleColor KindColor(MoneyKind kind)
