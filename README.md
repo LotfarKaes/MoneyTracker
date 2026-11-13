@@ -1,6 +1,6 @@
-# InPro1MoneyTracker
+# Money Tracking System
 
-Console application for the individual project **Money Tracking**.
+Console application for the individual project **Money Tracking System**.
 
 | | |
 |---|---|
@@ -9,7 +9,7 @@ Console application for the individual project **Money Tracking**.
 | Framework | .NET 10 |
 | Type | Console application |
 
-TrackMoney records money that comes in and money that goes out. An **income** adds money, such as salary. An **expense** takes money away, such as rent. The **balance** is all income minus all expenses. Each row stores a title, an amount, and a month. The list is saved when you quit and loaded again the next time the program starts.
+This is a simple personal money tracker. It helps users record their income and expenses. An **income** adds money, such as salary. An **expense** takes money away, such as rent. The **balance** is all income minus all expenses. Each row stores a title, an amount, and a month. The list is saved when you quit and loaded again the next time the program starts.
 
 The menu has the same four choices as the project mockup.
 
